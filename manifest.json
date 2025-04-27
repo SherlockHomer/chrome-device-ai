@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome Device AI",
+  "version": "1.0.0",
+  "description": "Chrome Device AI",
+  "minimum_chrome_version": "135",
+  "action": {
+    "default_title": "Open Sidepanel"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": ["sidePanel", "activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "static/images/icon-16.png",
+    "19": "static/images/icon-19.png",
+    "32": "static/images/icon-32.png",
+    "38": "static/images/icon-38.png",
+    "48": "static/images/icon-48.png",
+    "64": "static/images/icon-64.png",
+    "128": "static/images/icon-128.png",
+    "512": "static/images/icon-512.png"
+  },
+  "host_permissions": ["<all_urls>"]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "chrome-device-ai",
+  "version": "1.0.0",
+  "description": "Chrome Extension with Sidepanel",
+  "type": "module",
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "check": "tsc --noEmit",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+  },
+  "dependencies": {
+    "nes.css": "^2.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-react": "^7.26.3",
+    "@eslint/js": "^9.25.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-replace": "^5.0.0",
+    "chrome-types": "0.1.335",
+    "eslint": "^9.25.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^6.0.0",
+    "globals": "15.14.0",
+    "prettier": "^3.5.3",
+    "rollup": "^4.0.0",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-import-css": "^3.5.8"
+  }
+}

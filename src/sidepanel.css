@@ -1,0 +1,45 @@
+.nes-container {
+  margin-bottom: 2rem;
+}
+
+.nes-container.with-title {
+  margin-top: 2rem;
+}
+
+.nes-text {
+  margin-bottom: 1rem;
+  font-size: 0.7rem;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.nes-btn {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  white-space: normal;
+  height: auto;
+  padding: 0.5rem 1rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  font-size: 0.7rem;
+}
+
+.auto-resize-textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+}
