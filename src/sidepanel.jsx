@@ -7,6 +7,7 @@ import {
   extractAirDropEvent,
   getSummaryFromPrompt
 } from './utils/ai';
+import { MESSAGE_TYPES } from './constants/messageTypes';
 
 const Sidepanel = () => {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,13 @@ const Sidepanel = () => {
   const [eventText, setEventText] = useState('');
   const articleSummaryRef = useRef(null);
   const eventTextRef = useRef(null);
+
+  useEffect(() => {
+    // Cleanup function when component unmounts
+    return () => {
+      chrome.runtime.sendMessage({ type: MESSAGE_TYPES.SIDEPANEL_CLOSED });
+    };
+  }, []);
 
   const adjustTextareaHeight = (textarea) => {
     if (textarea) {
@@ -42,7 +50,7 @@ const Sidepanel = () => {
 
       // Send message to content script to get article text
       const response = await chrome.tabs.sendMessage(tab.id, {
-        type: 'GET_ARTICLE_TEXT'
+        type: MESSAGE_TYPES.GET_ARTICLE_TEXT
       });
 
       if (response && response.text) {
@@ -74,10 +82,30 @@ const Sidepanel = () => {
         setEventText(event);
       }
       session && session.destroy();
-
       addToCalendar(event);
     } catch (error) {
       console.error('add Calendar:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTranslate = async () => {
+    try {
+      if (loading) return;
+      setLoading(true);
+      // Get the current active tab
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+      });
+
+      // Send message to content script to start translation
+      await chrome.tabs.sendMessage(tab.id, {
+        type: MESSAGE_TYPES.START_TRANSLATION
+      });
+    } catch (error) {
+      console.error('Error starting translation:', error);
     } finally {
       setLoading(false);
     }
@@ -107,6 +135,14 @@ const Sidepanel = () => {
           disabled={loading || !articleSummary}
         >
           Add airdrop time to calendar
+        </button>
+        <button
+          type="button"
+          className="nes-btn is-warning"
+          onClick={handleTranslate}
+          disabled={loading}
+        >
+          Translate Page
         </button>
         <button
           type="button"
