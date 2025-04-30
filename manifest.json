@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Device AI",
+  "name": "Mario Helper",
   "version": "1.0.0",
-  "description": "Chrome Device AI",
+  "description": "Mario helps you with Chrome Device AI",
   "minimum_chrome_version": "135",
   "action": {
     "default_title": "Open Sidepanel"

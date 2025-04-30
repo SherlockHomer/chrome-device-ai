@@ -7,6 +7,7 @@ import {
   extractAirDropEvent,
   getSummaryFromPrompt
 } from './utils/ai';
+import { debounce } from './utils/debounce';
 import { MESSAGE_TYPES } from './constants/messageTypes';
 
 const Sidepanel = () => {
@@ -15,11 +16,20 @@ const Sidepanel = () => {
   const [eventText, setEventText] = useState('');
   const articleSummaryRef = useRef(null);
   const eventTextRef = useRef(null);
+  const articleCleanupRef = useRef(null);
+  const eventCleanupRef = useRef(null);
 
   useEffect(() => {
     // Cleanup function when component unmounts
     return () => {
       chrome.runtime.sendMessage({ type: MESSAGE_TYPES.SIDEPANEL_CLOSED });
+      // 分别清除两个防抖定时器
+      if (articleCleanupRef.current) {
+        articleCleanupRef.current();
+      }
+      if (eventCleanupRef.current) {
+        eventCleanupRef.current();
+      }
     };
   }, []);
 
@@ -30,13 +40,24 @@ const Sidepanel = () => {
     }
   };
 
-  useEffect(() => {
-    adjustTextareaHeight(articleSummaryRef.current);
-  }, [articleSummary]);
+  // 使用防抖的文本框高度调整
+  const debouncedAdjustTextareaHeight = useRef(
+    debounce((textarea) => adjustTextareaHeight(textarea))
+  ).current;
 
   useEffect(() => {
-    adjustTextareaHeight(eventTextRef.current);
-  }, [eventText]);
+    if (articleSummaryRef.current) {
+      // 保存articleSummary的清理函数
+      articleCleanupRef.current = debouncedAdjustTextareaHeight(articleSummaryRef.current);
+    }
+  }, [articleSummary, debouncedAdjustTextareaHeight]);
+
+  useEffect(() => {
+    if (eventTextRef.current) {
+      // 保存eventText的清理函数
+      eventCleanupRef.current = debouncedAdjustTextareaHeight(eventTextRef.current);
+    }
+  }, [eventText, debouncedAdjustTextareaHeight]);
 
   const handleSummarize = async () => {
     try {
