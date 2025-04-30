@@ -7,7 +7,6 @@ import {
   extractAirDropEvent,
   getSummaryFromPrompt
 } from './utils/ai';
-import { debounce } from './utils/debounce';
 import { MESSAGE_TYPES } from './constants/messageTypes';
 
 const Sidepanel = () => {
@@ -16,60 +15,70 @@ const Sidepanel = () => {
   const [eventText, setEventText] = useState('');
   const articleSummaryRef = useRef(null);
   const eventTextRef = useRef(null);
-  const articleCleanupRef = useRef(null);
-  const eventCleanupRef = useRef(null);
+  const isScrollingRef = useRef(false);
+  const scrollTimerRef = useRef(null);
 
   useEffect(() => {
-    // Cleanup function when component unmounts
+    const handleScrollStart = () => {
+      isScrollingRef.current = true;
+
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+
+      scrollTimerRef.current = setTimeout(() => {
+        isScrollingRef.current = false;
+        if (articleSummaryRef.current)
+          adjustTextareaHeight(articleSummaryRef.current);
+        if (eventTextRef.current) adjustTextareaHeight(eventTextRef.current);
+      }, 150);
+    };
+
+    window.addEventListener('scroll', handleScrollStart, { passive: true });
+
     return () => {
+      window.removeEventListener('scroll', handleScrollStart);
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
       chrome.runtime.sendMessage({ type: MESSAGE_TYPES.SIDEPANEL_CLOSED });
-      // 分别清除两个防抖定时器
-      if (articleCleanupRef.current) {
-        articleCleanupRef.current();
-      }
-      if (eventCleanupRef.current) {
-        eventCleanupRef.current();
-      }
     };
   }, []);
 
   const adjustTextareaHeight = (textarea) => {
+    if (isScrollingRef.current) return;
+
     if (textarea) {
+      const scrollPos = window.scrollY;
+
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
+
+      window.scrollTo(0, scrollPos);
     }
   };
 
-  // 使用防抖的文本框高度调整
-  const debouncedAdjustTextareaHeight = useRef(
-    debounce((textarea) => adjustTextareaHeight(textarea), 100)
-  ).current;
-
   useEffect(() => {
     if (articleSummaryRef.current) {
-      // 保存articleSummary的清理函数
-      articleCleanupRef.current = debouncedAdjustTextareaHeight(articleSummaryRef.current);
+      adjustTextareaHeight(articleSummaryRef.current);
     }
-  }, [articleSummary, debouncedAdjustTextareaHeight]);
+  }, [articleSummary]);
 
   useEffect(() => {
     if (eventTextRef.current) {
-      // 保存eventText的清理函数
-      eventCleanupRef.current = debouncedAdjustTextareaHeight(eventTextRef.current);
+      adjustTextareaHeight(eventTextRef.current);
     }
-  }, [eventText, debouncedAdjustTextareaHeight]);
+  }, [eventText]);
 
   const handleSummarize = async () => {
     try {
       if (loading) return;
       setLoading(true);
-      // Get the current active tab
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true
       });
 
-      // Send message to content script to get article text
       const response = await chrome.tabs.sendMessage(tab.id, {
         type: MESSAGE_TYPES.GET_ARTICLE_TEXT
       });
@@ -115,13 +124,11 @@ const Sidepanel = () => {
     try {
       if (loading) return;
       setLoading(true);
-      // Get the current active tab
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true
       });
 
-      // Send message to content script to start translation
       await chrome.tabs.sendMessage(tab.id, {
         type: MESSAGE_TYPES.START_TRANSLATION
       });
@@ -133,7 +140,6 @@ const Sidepanel = () => {
   };
 
   const handleHide = () => {
-    // TODO: Implement hide functionality
     console.log('Hide clicked');
   };
 
