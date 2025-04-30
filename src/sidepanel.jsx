@@ -42,7 +42,7 @@ const Sidepanel = () => {
 
   // 使用防抖的文本框高度调整
   const debouncedAdjustTextareaHeight = useRef(
-    debounce((textarea) => adjustTextareaHeight(textarea))
+    debounce((textarea) => adjustTextareaHeight(textarea), 100)
   ).current;
 
   useEffect(() => {
